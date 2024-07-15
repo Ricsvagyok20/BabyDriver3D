@@ -1,0 +1,565 @@
+<!--Baby Driver című filmből kezdő jelenet-->
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset=utf-8>
+    <title>Three.js Object Tester Skeleton</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { width: 100%; height: 100% }
+        #caption {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 50%;
+            text-align: left;
+            z-index: 100;
+            display:block;
+            color: deepskyblue;
+        }
+        #info {
+            position: absolute;
+            top: 0;
+            right: 0;
+            text-align: left;
+            z-index: 100;
+            display:block;
+            color: deepskyblue;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="caption">
+    <p>Rück Richárd Neptun kód: SX8W3U</p>
+    <p>Szak: programtervező informatikus Aktuális tanév: 2023/24/1</p>
+</div>
+
+<div id="info">
+    <p>Nappal és éjszaka közötti váltás 'a' betű lenyomásával</p>
+    <p>Utcalámpa pontfény ki-be kapcsolása 'p' betű lenyomásával</p>
+    <p>Helikopter reflektorfény ki-be kapcsolása 'r' betű lenyomásával</p>
+    <p>Rendőrautó előre mozgatása 'w' betű lenyomásával</p>
+    <p>Rendőrautó hátra mozgatása 's' betű lenyomásával</p>
+    <p>Szöveges információk ki-be kapcsolása 'i' betű lenyomásával</p>
+</div>
+
+<script async src="./dist/es-module-shims.js"></script>
+<script type="importmap">
+    {
+        "imports": {
+            "three": "./js-r154/build/three.module.js",
+            "lil-gui": "./js-r154/examples/jsm/libs/lil-gui.module.min.js",
+            "trackballcontrols": "./js-r154/examples/jsm/controls/TrackballControls.js"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { TrackballControls } from 'trackballcontrols';
+    import { GUI } from 'lil-gui';
+
+    class Car{
+        carGroup = new THREE.Group();
+        wheelOne; wheelTwo; wheelThree; wheelFour;
+        bodyMesh; topBodyMesh;
+        bodyGeometry; topBodyGeometry;
+        topBodyMaterial; bodyMaterial;
+        textureLoader = new THREE.TextureLoader();
+
+        constructor() {
+            let geometryOne = new THREE.TorusGeometry( 4, 1.8, 16, 100 );
+            let materialOne = new THREE.MeshPhongMaterial( { color: 0x000000, wireframe: true } );
+            this.wheelOne = new THREE.Mesh( geometryOne, materialOne );
+            this.carGroup.add( this.wheelOne );
+
+            this.wheelOne.position.x = 9;
+            this.wheelOne.position.z = 5;
+            this.wheelOne.position.y = -5;
+            this.wheelOne.scale.set(0.7, 0.7, 0.7);
+
+            let geometryTwo = new THREE.TorusGeometry( 4, 1.8, 16, 100 );
+            let materialTwo = new THREE.MeshPhongMaterial( { color: 0x000000, wireframe: true } );
+            this.wheelTwo = new THREE.Mesh( geometryTwo, materialTwo );
+            this.carGroup.add( this.wheelTwo );
+
+            this.wheelTwo.position.x = -9;
+            this.wheelTwo.position.z = -5;
+            this.wheelTwo.position.y = -5;
+            this.wheelTwo.scale.set(0.7, 0.7, 0.7);
+
+            let geometryThree = new THREE.TorusGeometry( 4, 1.8, 16, 100 );
+            let materialThree = new THREE.MeshPhongMaterial( { color: 0x000000, wireframe: true } );
+            this.wheelThree = new THREE.Mesh( geometryThree, materialThree );
+            this.carGroup.add( this.wheelThree );
+
+            this.wheelThree.position.x = 9;
+            this.wheelThree.position.z = -5;
+            this.wheelThree.position.y = -5;
+            this.wheelThree.scale.set(0.7, 0.7, 0.7);
+
+            let geometryFour = new THREE.TorusGeometry( 4, 1.8, 16, 100 );
+            let materialFour = new THREE.MeshPhongMaterial( { color: 0x000000, wireframe: true} );
+            this.wheelFour = new THREE.Mesh( geometryFour, materialFour );
+            this.carGroup.add( this.wheelFour );
+
+            this.wheelFour.position.x = -9;
+            this.wheelFour.position.z = 5;
+            this.wheelFour.position.y = -5;
+            this.wheelFour.scale.set(0.7, 0.7, 0.7);
+
+            let lightGeometry = new THREE.ConeGeometry(1, 3, 3, 1);
+            let lightMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff} );
+            let lightOne = new THREE.Mesh( lightGeometry, lightMaterial );
+            lightOne.position.set(-12.5, 0, -3);
+            lightOne.rotateX(Math.PI / 1.5);
+            lightOne.rotateY(Math.PI);
+            let lightTwo = new THREE.Mesh( lightGeometry, lightMaterial );
+            lightTwo.position.set(-12.5, 0, 3);
+            lightTwo.rotateX(-Math.PI / 1.5);
+            lightTwo.rotateY(Math.PI);
+            this.carGroup.add( lightOne );
+            this.carGroup.add( lightTwo );
+
+        }
+
+        addSpoiler(){
+            let carbonTexture = this.textureLoader.load( './assets/texture/carbon.jpg');
+            let spoilerGeometry = new THREE.BoxGeometry( 2, 2, 2 );
+            let spoilerMaterial= new THREE.MeshLambertMaterial( { color: 0xffffff } );
+            spoilerMaterial.map = carbonTexture;
+            let spoilerMesh = new THREE.Mesh( spoilerGeometry, spoilerMaterial );
+            this.carGroup.add( spoilerMesh );
+
+            spoilerMesh.position.y = 3.5;
+            spoilerMesh.position.x = 12.5;
+            spoilerMesh.scale.set(1.5, 1.5, 5);
+            spoilerMesh.receiveShadow = true;
+            spoilerMesh.castShadow = false;
+            return this.carGroup;
+        }
+
+        addTopWithoutTexture(){
+            this.topBodyGeometry = new THREE.BoxGeometry( 10, 3, 8 );
+            this.topBodyMaterial = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+            this.topBodyMesh = new THREE.Mesh( this.topBodyGeometry, this.topBodyMaterial );
+            this.carGroup.add( this.topBodyMesh );
+
+            this.bodyGeometry = new THREE.BoxGeometry( 5, 3, 2 );
+            this.bodyMaterial = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+            this.bodyMesh = new THREE.Mesh( this.bodyGeometry, this.bodyMaterial );
+            this.carGroup.add( this.bodyMesh );
+
+            this.bodyMesh.position.y = -1;
+            this.bodyMesh.scale.set(5, 2, 5);
+            this.bodyMesh.receiveShadow = true;
+            this.bodyMesh.castShadow = false;
+
+            this.topBodyMesh.position.y = 3.8;
+            this.topBodyMesh.scale.set(1.2, 1.2, 1.2);
+            this.topBodyMesh.receiveShadow = true;
+            this.topBodyMesh.castShadow = false;
+        }
+
+        addTopWithTexture(){
+            let paintTexture = this.textureLoader.load( './assets/texture/paint.jpg');
+            this.topBodyGeometry = new THREE.BoxGeometry( 10, 3, 8 );
+            this.topBodyMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff } );
+            this.topBodyMaterial.map = paintTexture;
+            this.topBodyMesh = new THREE.Mesh( this.topBodyGeometry, this.topBodyMaterial );
+            this.carGroup.add( this.topBodyMesh );
+
+            this.bodyGeometry = new THREE.BoxGeometry( 5, 3, 2 );
+            this.bodyMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff } );
+            this.bodyMaterial.map = paintTexture;
+            this.bodyMesh = new THREE.Mesh( this.bodyGeometry, this.bodyMaterial );
+            this.carGroup.add( this.bodyMesh );
+
+            this.bodyMesh.position.y = -1;
+            this.bodyMesh.scale.set(5, 2, 5);
+            this.bodyMesh.receiveShadow = true;
+            this.bodyMesh.castShadow = false;
+
+            this.topBodyMesh.position.y = 3.8;
+            this.topBodyMesh.scale.set(1.2, 1.2, 1.2);
+            this.topBodyMesh.receiveShadow = true;
+            this.topBodyMesh.castShadow = false;
+        }
+
+        getGroup(){
+            return this.carGroup;
+        }
+    }
+
+    //Gun
+    class Gun{
+        gunGroup = new THREE.Group();
+        constructor() {
+            let material = new THREE.MeshPhongMaterial( { color: 0xa1662f } );
+
+            let handleGeometry = new THREE.BoxGeometry(2, 4, 2);
+            let fireGeometry = new THREE.BoxGeometry(2, 2, 10);
+            let handle = new THREE.Mesh(handleGeometry, material);
+            let fire = new THREE.Mesh(fireGeometry, material);
+            fire.position.set(0, 3, 3);
+            this.gunGroup.add(handle);
+            this.gunGroup.add(fire);
+        }
+        getGroup () { return this.gunGroup; }
+    }
+
+    //Money bag
+    class MoneyBag{
+        bagGroup = new THREE.Group();
+        constructor() {
+            let material = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+
+            let mainGeometry = new THREE.BoxGeometry(16, 8, 8);
+            let handle1Geometry = new THREE.BoxGeometry(2, 2, 12);
+            let handle2Geometry = new THREE.BoxGeometry(2, 2, 12);
+            let main = new THREE.Mesh(mainGeometry, material);
+            let handle1 = new THREE.Mesh(handle1Geometry, material);
+            let handle2 = new THREE.Mesh(handle2Geometry, material);
+            main.position.y = 4;
+            handle1.position.set(-4, 11, 0);
+            handle1.rotateZ(Math.PI / 4);
+            handle1.rotateY(Math.PI / 2);
+            handle2.position.set(4, 11, 0);
+            handle2.rotateZ(-Math.PI / 4);
+            handle2.rotateY(-Math.PI / 2);
+            this.bagGroup.add(main);
+            this.bagGroup.add(handle1);
+            this.bagGroup.add(handle2);
+        }
+        getGroup () { return this.bagGroup; }
+    }
+
+    //Person
+    class Person{
+
+        personGroup = new THREE.Group();
+
+        constructor(){
+            let material = new THREE.MeshPhongMaterial( { color: 0xffdbac } );
+            let coatTexture = new THREE.TextureLoader ().load ('./assets/texture/trench_coat.jpg');
+            let coatMaterial = new THREE.MeshPhongMaterial ( {map: coatTexture} );
+
+            let head = new THREE.SphereGeometry (5, 32, 16);
+            let headMesh = new THREE.Mesh (head, material);
+            let body = new THREE.BoxGeometry (13, 16, 8); let bodyMesh = new THREE.Mesh (body, coatMaterial);
+            let arm = new THREE.BoxGeometry (5, 15, 5); let leftArmMesh = new THREE.Mesh (arm, material);
+            let leg = new THREE.BoxGeometry (6, 15, 6); let leftLegMesh = new THREE.Mesh (leg, material);
+            let rightArmMesh = new THREE.Mesh (arm, material);
+            let rightLegMesh = new THREE.Mesh (leg, material);
+            let moneyBag = new MoneyBag();
+            let moneyBagGroup = moneyBag.getGroup();
+            moneyBagGroup.position.set(12, 3, 2);
+            moneyBagGroup.rotateY(Math.PI / 2);
+            moneyBagGroup.scale.set(0.8, 0.8, 0.8);
+            leftArmMesh.rotateZ(Math.PI / 6);
+            let gun = new Gun();
+            let gunGroup = gun.getGroup();
+            gunGroup.position.set(-9, 20, 12);
+            rightArmMesh.rotateX(-Math.PI / 3);
+            this.personGroup.add(moneyBagGroup);
+            this.personGroup.add(gunGroup);
+            headMesh.position.y = 33.5; bodyMesh.position.y = 21; leftArmMesh.position.x = 9; leftArmMesh.position.y = 21; rightArmMesh.position.x = -9; rightArmMesh.position.y = 23; rightArmMesh.position.z = 5; leftLegMesh.position.x = 3.5; leftLegMesh.position.y = 7.5; rightLegMesh.position.x = -3.5; rightLegMesh.position.y = 7.5;
+            this.personGroup.add(headMesh); this.personGroup.add(bodyMesh); this.personGroup.add(leftArmMesh); this.personGroup.add(rightArmMesh); this.personGroup.add(leftLegMesh); this.personGroup.add(rightLegMesh);
+            this.personGroup.scale.set(0.9, 0.9, 0.9);
+        }
+
+        getGroup () { return this.personGroup; }
+    }
+
+    // Globális változók
+    let WIDTH, HEIGHT, aspectRatio;
+    let renderer;
+    let scene, camera;
+    let ctrl, controls;
+    let holder1, carGroup, personGroup, personGroup2, personGroup3, lampGroup;
+    let heliRotorMesh, heliTailRotorMesh;
+    let helicopterGroup, heliSpotLight;
+    let gui;
+    let copCarGroup;
+
+    let meshController = function () {
+        this.heliHeight = 300;
+    };
+
+    init();
+    animate();
+
+    function addControlGui( controlObject ) {
+        let gui = new GUI( { autoPlace: false } );
+        gui.add( controlObject, 'heliHeight', 200, 600 ).name( 'Helikopter fel-le mozgatás' ).onChange((e) => {
+            helicopterGroup.position.y = e;
+        });
+
+        gui.domElement.style.position = 'absolute';
+        gui.domElement.style.top = '225px';
+        gui.domElement.style.right = '0px';
+        document.body.appendChild( gui.domElement );
+    }
+
+    function init() {
+        HEIGHT = window.innerHeight;
+        WIDTH = window.innerWidth;
+        aspectRatio = WIDTH / HEIGHT;
+
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setSize( WIDTH, HEIGHT );
+        renderer.setClearColor( 0xd3d3d3 );
+        document.body.appendChild( renderer.domElement );
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera( 75, aspectRatio, 0.1, 1000 );
+        camera.position.set( 0, 50, 150 );
+        camera.lookAt( scene.position.x, scene.position.y, scene.position.z );
+
+        let isDay = true;
+        let dayColor = new THREE.Color(0xfceea7);
+        let nightColor = new THREE.Color(0x0000ff);
+        let ambientLight = new THREE.AmbientLight(dayColor, 1);
+
+        scene.add(ambientLight);
+
+        //Objektum hierarchia kezdete
+        personGroup = new THREE.Group();
+        personGroup2 = new THREE.Group();
+        carGroup = new THREE.Group();
+        holder1 = new THREE.Object3D();
+
+        let planeGeometry = new THREE.PlaneGeometry (1000, 1000);
+        let planeTexture = new THREE.TextureLoader ().load ('./assets/texture/road.png');
+        planeTexture.repeat.set (10, 100);
+        planeTexture.wrapS = planeTexture.wrapT = THREE.RepeatWrapping;
+        planeTexture.anisotropy = 32;
+        let planeMaterial = new THREE.MeshPhongMaterial ( {map: planeTexture} );
+        let planeMesh = new THREE.Mesh (planeGeometry, planeMaterial);
+        planeMesh.rotation.x = - Math.PI / 2;
+        scene.add (planeMesh);
+
+        //Robbers
+
+        let person1 = new Person();
+        personGroup = person1.getGroup();
+        personGroup.position.set(65, 0, 72);
+        personGroup.rotateY(-Math.PI / 2);
+        let person2 = new Person();
+        personGroup2 = person2.getGroup();
+        personGroup2.position.set(65, 0, 25);
+        personGroup2.rotateY(-Math.PI / 2);
+        let person3 = new Person();
+        personGroup3 = person3.getGroup();
+        personGroup3.position.set(100, 0, 50);
+        personGroup3.rotateY(-Math.PI / 2);
+        scene.add(personGroup);
+        scene.add(personGroup2);
+        scene.add(personGroup3);
+
+        let textureLoader = new THREE.TextureLoader();
+        let lampTexture = textureLoader.load( './assets/texture/lamp_pole.jpg');
+
+        //Lamp
+        lampGroup = new THREE.Group();
+        let lampMaterial = new THREE.MeshPhongMaterial( { color: 0x808080 } );
+        lampMaterial.map = lampTexture;
+
+        let baseGeometry = new THREE.BoxGeometry( 10, 100, 10 );
+        let lampBase = new THREE.Mesh(baseGeometry, lampMaterial);
+        lampBase.position.y = 50;
+
+        let overheadGeometry = new THREE.BoxGeometry( 10, 10, 30 );
+        let overheadMesh = new THREE.Mesh(overheadGeometry, lampMaterial);
+        overheadMesh.position.z = 15;
+        overheadMesh.position.y = 95;
+
+        let lampLight = new THREE.PointLight( 0xffff00, 5 );
+        lampLight.position.set( -50, 85.5, 27.5 );
+        lampLight.distance = 300;
+        lampLight.castShadow = true;
+        lampGroup.add( lampLight );
+
+        let sphereSize = 10;
+        let pointLightHelper = new THREE.PointLightHelper( lampLight, sphereSize );
+
+        lampGroup.add( pointLightHelper );
+        lampGroup.add(overheadMesh);
+        lampGroup.add(lampBase);
+
+        lampGroup.position.x = 50;
+        scene.add(lampGroup);
+
+        //Cars
+
+        let subaru = new Car();
+        let copCar = new Car();
+        subaru.addTopWithTexture();
+        carGroup = subaru.addSpoiler();
+
+        let copLightGeometry = new THREE.BoxGeometry( 2, 2, 8 );
+        let copLightMaterial = new THREE.MeshPhongMaterial( { color: 0x0e4399 } );
+        let copLightMesh = new THREE.Mesh(copLightGeometry, copLightMaterial);
+
+        copCar.addTopWithoutTexture();
+        copCarGroup = copCar.getGroup();
+        copCarGroup.add(copLightMesh);
+        copLightMesh.position.set( 0, 6.5, 0);
+        copCarGroup.scale.set(2, 2, 2);
+        copCarGroup.position.set(200, 18, 125);
+
+
+        carGroup.scale.set(2, 2, 2);
+        carGroup.position.set(50, 18, 50);
+
+        holder1.add(carGroup);
+        scene.add(holder1);
+
+
+        scene.add(copCarGroup);
+
+        //Helicopter with spotLight
+        helicopterGroup = new THREE.Group();
+
+        let heliBody = new THREE.BoxGeometry(40, 30, 80);
+        let heliMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+        let heliMesh = new THREE.Mesh(heliBody, heliMaterial);
+        helicopterGroup.add(heliMesh);
+
+        let heliTail = new THREE.BoxGeometry(10, 10, 40);
+        let heliTailMesh = new THREE.Mesh(heliTail, heliMaterial);
+        heliTailMesh.position.set(0, 0, 60);
+        helicopterGroup.add(heliTailMesh);
+
+        let heliRotor = new THREE.BoxGeometry(5, 2, 150);
+        let heliRotorMaterial = new THREE.MeshLambertMaterial({ color: 0xc0c0c0 });
+        heliRotorMesh = new THREE.Mesh(heliRotor, heliRotorMaterial);
+        heliRotorMesh.position.set(0, 16, 0);
+        helicopterGroup.add(heliRotorMesh);
+
+        let heliTailRotor = new THREE.BoxGeometry(1, 20, 1);
+        heliTailRotorMesh = new THREE.Mesh(heliTailRotor, heliRotorMaterial);
+        heliTailRotorMesh.position.set(5, 0, 80);
+        helicopterGroup.add(heliTailRotorMesh);
+
+
+        helicopterGroup.rotateY(Math.PI / 2);
+        helicopterGroup.position.set(200, 300, 200);
+
+
+        let cylinderGeometry = new THREE.CylinderGeometry(1, 1, 10, 32);
+        let cylinderMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+        let cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+        cylinder.position.set(20, -15, -20);
+        cylinder.rotation.z = Math.PI / 4;
+        cylinder.rotation.y = Math.PI / 2;
+        cylinder.castShadow = true;
+        helicopterGroup.add(cylinder);
+
+        heliSpotLight = new THREE.SpotLight(0xffffff, 10);
+        heliSpotLight.position.set(20, -18, -23);
+        heliSpotLight.target = carGroup;
+        heliSpotLight.angle = Math.PI / 8;
+        heliSpotLight.distance = 800;
+        heliSpotLight.castShadow = true;
+        helicopterGroup.add(heliSpotLight);
+
+        scene.add(helicopterGroup);
+
+
+        window.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'a':
+                    isDay = !isDay;
+                    if (isDay) {
+                        ambientLight.color = dayColor;
+                        ambientLight.intensity = 1;
+                    } else {
+                        ambientLight.color = nightColor;
+                        ambientLight.intensity = 0.5;
+                    }
+                    break;
+                case 'p':
+                    if (lampLight.intensity === 0) {
+                        lampLight.intensity = 5;
+                    } else {
+                        lampLight.intensity = 0;
+                    }
+                    break;
+                case 'r':
+                    if (heliSpotLight.intensity === 0) {
+                        heliSpotLight.intensity = 10;
+                    } else {
+                        heliSpotLight.intensity = 0;
+                    }
+                    break;
+                case 'i':
+                    if(document.getElementById("info").style.visibility !== "hidden"){
+                        document.getElementById("info").style.visibility = "hidden";
+                    }
+                    else{
+                        document.getElementById("info").style.visibility = "visible";
+                    }
+                    if(document.getElementById("caption").style.visibility !== "hidden"){
+                        document.getElementById("caption").style.visibility = "hidden";
+                    }
+                    else{
+                        document.getElementById("caption").style.visibility = "visible";
+                    }
+                    break;
+                case 's':
+                    if(copCarGroup.position.x + 5 < 400){
+                        copCarGroup.position.x += 5;
+                    }
+                    break;
+                case 'w':
+                    if(copCarGroup.position.x - 5 > 0){
+                        copCarGroup.position.x -= 5;
+                    }
+                    break;
+            }
+        })
+
+        window.addEventListener( 'resize', handleWindowResize, false );
+
+        ctrl = new meshController();
+        addControlGui(ctrl);
+
+        // Kamera vezérlés
+        controls = new TrackballControls( camera, renderer.domElement );
+        controls.rotateSpeed = 5.0;
+        controls.panSpeed = 1.0;
+    }
+
+    function handleWindowResize() {
+        HEIGHT = window.innerHeight;
+        WIDTH = window.innerWidth;
+        console.log( 'WIDTH=' + WIDTH + '; HEIGHT=' + HEIGHT );
+        renderer.setSize( WIDTH, HEIGHT );
+        aspectRatio = WIDTH / HEIGHT;
+        camera.aspect = aspectRatio;
+        camera.updateProjectionMatrix();
+
+        render();
+    }
+
+    function animate() {
+        requestAnimationFrame( animate );
+        heliRotorMesh.rotation.y += 0.1;
+        heliTailRotorMesh.rotation.x += 0.1;
+
+        controls.update();
+        render();
+    }
+
+    function render() {
+        renderer.render( scene, camera );
+    }
+
+</script>
+</body>
+</html>
